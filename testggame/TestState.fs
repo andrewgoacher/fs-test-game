@@ -6,7 +6,7 @@ open Microsoft.Xna.Framework
 type TestState = {
     texture:Texture2D
     bounds:Rectangle
-    animation: AnimatedSprite.Animation
+    animation: Animation.Animation
 }
 
 let createTestState texture animation (config:Settings.Config)=
@@ -19,10 +19,10 @@ let draw (spriteBatch:SpriteBatch) (testState:TestState) =
         testState.bounds,
         Color.White)
     
-    AnimatedSprite.draw spriteBatch testState.animation
+    Animation.draw spriteBatch testState.animation
 
 let update (gameTime:GameTime) (testState:TestState)=
-    let newAnimationState = AnimatedSprite.update gameTime testState.animation
+    let newAnimationState = Animation.update gameTime testState.animation
     let bounds = testState.bounds
     let config: Settings.Config  = {width=bounds.Width; height = bounds.Height}
     createTestState testState.texture newAnimationState config

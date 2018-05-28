@@ -8,11 +8,6 @@ type State=
     | Empty
     | TestState of TestState.TestState
 
-type Settings = {
-    width:int
-    height:int
-}
-
 let createTexture name (content:ContentManager)=
     content.Load<Texture2D>(name)
 
@@ -23,13 +18,13 @@ let createTestState (bounds:Rectangle) (contentManager:ContentManager)=
 
     let animationTexture = contentManager.Load<Texture2D>("scottpilgrim_multiple")
     let atlasSize = new Point(108,140)
-    let atlas = AnimatedSprite.createAtlas animationTexture atlasSize
+    let atlas = Animation.createAtlas animationTexture atlasSize
 
     let charY = windowHeight - 108
     let charX = 75
     let characterPos = new Vector2( (float32 charX), (float32 charY))
 
-    let animation = AnimatedSprite.createAnimation atlas 0 0.0 180.0 true characterPos false
+    let animation = Animation.createAnimation atlas 0 0.0 180.0 true characterPos false
     TestState.createTestState (createTexture "bg1" contentManager) animation config        
 
 type Game() as this=
