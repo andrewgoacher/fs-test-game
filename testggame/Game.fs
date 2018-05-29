@@ -8,24 +8,27 @@ type State=
     | Empty
     | TestState of TestState.TestState
 
-let createTexture name (content:ContentManager)=
-    content.Load<Texture2D>(name)
-
 let createTestState (bounds:Rectangle) (contentManager:ContentManager)=
     let windowWidth = bounds.Width
     let windowHeight = bounds.Height
     let config:Settings.Config = {width=windowWidth;height=windowHeight}
 
+    let backgroundTexture = Texture.createTexture "bg1" contentManager
+
     let animationTexture = contentManager.Load<Texture2D>("scottpilgrim_multiple")
-    let atlasSize = new Point(108,140)
-    let atlas = Animation.createAtlas animationTexture atlasSize
+    let atlasSize = (108,140)
+    let atlas = Texture.createAtlas animationTexture atlasSize
 
     let charY = windowHeight - 108
     let charX = 75
     let characterPos = new Vector2( (float32 charX), (float32 charY))
 
-    let animation = Animation.createAnimation atlas 0 0.0 180.0 true characterPos false
-    TestState.createTestState (createTexture "bg1" contentManager) animation config        
+    let runRightAnimation = Animation.createAnimationFromAtlas "run-right" atlas [0..7] 150.0 true
+    let animations = (Animation.addAnimation {animations=[];currentAnimation=""} runRightAnimation)
+
+    let animationState = Animation.createAnimationState animations characterPos 0.0 true 0
+
+    TestState.createTestState backgroundTexture animationState config        
 
 type Game() as this=
     inherit Microsoft.Xna.Framework.Game()

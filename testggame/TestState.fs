@@ -2,30 +2,29 @@
 
 open Microsoft.Xna.Framework.Graphics
 open Microsoft.Xna.Framework
+open Animation
 
 type TestState = {
-    texture:Texture2D
-    bounds:Rectangle
-    animation: Animation.Animation
+    background:Texture.Sprite
+    animation: AnimationState
 }
 
 let createTestState texture animation (config:Settings.Config)=
     let bounds = new Rectangle(0,0,config.width, config.height)
-    {texture=texture;bounds=bounds;animation=animation}
+    let background = Texture.createSprite texture bounds |> Texture.Sprite.StaticSprite
+    {background=background;animation=animation}
 
 let draw (spriteBatch:SpriteBatch) (testState:TestState) =
-    spriteBatch.Draw(
-        testState.texture,
-        testState.bounds,
-        Color.White)
+    Texture.draw spriteBatch testState.background None
     
     Animation.draw spriteBatch testState.animation
 
 let update (gameTime:GameTime) (testState:TestState)=
     let newAnimationState = Animation.update gameTime testState.animation
-    let bounds = testState.bounds
-    let config: Settings.Config  = {width=bounds.Width; height = bounds.Height}
-    createTestState testState.texture newAnimationState config
+    //let bounds = testState.bounds
+    //let config: Settings.Config  = {width=bounds.Width; height = bounds.Height}
+    //createTestState testState.texture newAnimationState config
+    testState
 
 
 

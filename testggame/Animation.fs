@@ -2,115 +2,107 @@
 
 open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
+open Texture
 
-type AtlasItem = {frameRef:int;sourceRect:Rectangle}
-type TextureAtlas = {texture:Texture2D;textureAtlas:AtlasItem list}
-
-type Animation = {
-    atlas:TextureAtlas
-    currentFrame: int
-    frameTime: float
-    frameDuration: float
-    loops: bool
-    position: Vector2
-    stopped:bool
+type Frame = {atlasItem:AtlasSprite;frameDuration:float}
+type Animation = {name:string;frames:Frame list;loops:bool}
+type Animations = {animations:Animation list;currentAnimation:string}
+type AnimationState = {
+    animations:Animations
+    position:Vector2
+    frameTime:float
+    active:bool
+    currentFrame:int
 }
 
-let createAnimation atlas currentFrame frameTime duration loops position stopped =
-    {
-        atlas = atlas
-        currentFrame = currentFrame
-        frameTime = frameTime
-        frameDuration = duration
-        loops = loops
-        position = position
-        stopped = stopped
-    }
+let createFrame sprite duration =
+    {atlasItem=sprite;frameDuration=duration}
 
-let sourceRect animation =
-    let atlas = animation.atlas
-    let textureAtlas = atlas.textureAtlas
-    let frameId = animation.currentFrame
-    let frame = textureAtlas.[frameId]
-    frame.sourceRect
+let createAnimation name frames loops =
+    {name=name;frames=frames;loops=loops}
 
-let position animation =
-    animation.position
+let createAnimationFromAtlas name atlas indices duration loops =
+    let frames = 
+        indices
+        |> List.map (fun index ->
+            let sprite =Texture.createAtlasSprite atlas index atlas.items.[index].source
+            createFrame sprite duration
+        )
+    createAnimation name frames loops 
 
-let texture animation =
-    animation.atlas.texture
+let addAnimation (animations:Animations) (animation :Animation)=
+    let currentAnimations = animations.animations
+    match currentAnimations with
+    | [] -> {animations=[animation];currentAnimation=animation.name}
+    | list -> {animations=animation::list;currentAnimation=animations.currentAnimation}
 
-let createAtlas (texture:Texture2D) (atlastSize:Point) =
-    let width = texture.Width
-    let height = texture.Height
+let createAnimationState animations position frameTime isActive currentFrame =
+    {animations=animations;position=position;frameTime=frameTime;active=isActive;currentFrame=currentFrame}
 
-    let hCount = width/atlastSize.X
-    let vCount = height/atlastSize.Y
+let isActive animationState =
+    animationState.active
 
-    let rec createAtlasItem (list:AtlasItem list) frameRef (atlasSize:Point) current count =
-        let xCur,yCur = current
-        let xCount,yCount = count
+let position animationState =
+    animationState.position
 
-        let rect = new Rectangle(xCur*atlasSize.X, yCur*atlasSize.Y, atlasSize.X, atlasSize.Y)
-        let newItem = {frameRef=frameRef;sourceRect = rect}
-        let newList = list@[newItem]
+let currentAnimation animation =
+    let animationCollection = animation.animations
+    let name = animationCollection.currentAnimation
+    let selectedAnimation = 
+        animationCollection.animations 
+        |> List.tryPick (fun anim ->
+           if anim.name.Equals(name) then
+               Some anim
+           else None)
 
-        match current with
-        | x,y when x = (xCount-1) && y = (yCount-1) -> list
-        | x,y when x = xCount-1 ->
-            createAtlasItem newList (frameRef+1) atlasSize (0,y+1) count
-        | x,y ->
-            createAtlasItem newList (frameRef+1) atlasSize (x+1,y) count
-    
-    let textureAtlas = createAtlasItem [] 0 atlastSize (0,0) (hCount,vCount)
-    {texture=texture;textureAtlas=textureAtlas}
+    match selectedAnimation with
+    | Some a -> a
+    | None -> failwith "not found"
 
-let draw (spritebatch:SpriteBatch) (animation:Animation) =
-    match animation.stopped with
-    | true -> ()
-    | false -> 
-        let position = position animation
-        let source = System.Nullable (sourceRect animation)
+let frame animationState animation =
+    let frames = animation.frames
+    let frameRef = animationState.currentFrame
+    frames.[frameRef]
 
-        spritebatch.Draw(
-            texture animation,
-            position,
-            source,
-            Color.White)
+let draw (spritebatch:SpriteBatch) (currentState:AnimationState) =
+   if not <| isActive currentState then
+    ()
+   else
+        let position = position currentState
+        let currentAnimation = currentAnimation currentState
+        let frame = frame currentState currentAnimation
+        let source = Texture.source <| Texture.AtlasSprite frame.atlasItem
+        let bounds = Math.createRect (int position.X) (int position.Y) source.Width source.Height
 
-let currentFrame animation = 
-    let ref = animation.currentFrame
-    let atlas = animation.atlas
-    atlas.textureAtlas.[ref]
+        Texture.draw spritebatch (Texture.AtlasSprite frame.atlasItem) (Some bounds)
 
-let frameTime animation =
-    animation.frameTime
+let update (gameTime:GameTime) (currentState:AnimationState) =
+    currentState
+    //match isActive currentState with
+    //| false -> ()
+    //| true ->
+    //    let elapsedTime = gameTime.ElapsedGameTime.TotalMilliseconds
+    //    let currentAnimation = currentAnimation currentState
+    //    let currentFrame = getFrame currentState
+    //    let newFrameTime = (frameTime animation) + elapsedTime
+    //    let duration = currentFrame.frameDuration
 
-let duration animation =
-    animation.frameDuration
 
-let frameCount animation =
-    List.length animation.atlas.textureAtlas
+    //if animation.stopped then
+    //    animation
+    //else 
 
-let update (gameTime:GameTime) (animation:Animation) =
-    if animation.stopped then
-        animation
-    else 
+    //    let currentFrame = currentFrame animation
 
-        let elapsedTime = gameTime.ElapsedGameTime.TotalMilliseconds
-        let newFrameTime = (frameTime animation) + elapsedTime
-        let currentFrame = currentFrame animation
-        let duration = duration animation
-
-        if newFrameTime > duration then
-            let newFrameRef = currentFrame.frameRef + 1
-            let totalFrameCount = frameCount animation
-            if newFrameRef >= totalFrameCount then
-                if animation.loops then
-                    createAnimation animation.atlas 0 0.0 animation.frameDuration animation.loops animation.position animation.stopped
-                else
-                    createAnimation animation.atlas animation.currentFrame animation.frameTime animation.frameDuration animation.loops animation.position true
-            else
-                createAnimation animation.atlas (animation.currentFrame + 1) 0.0 animation.frameDuration animation.loops animation.position animation.stopped
-        else 
-            createAnimation animation.atlas animation.currentFrame newFrameTime animation.frameDuration animation.loops animation.position animation.stopped
+    //    if newFrameTime > duration then
+    //        let newFrameRef = currentFrame.atlasRef + 1
+    //        let totalFrameCount = frameCount animation
+    //        if newFrameRef >= totalFrameCount then
+    //            if animation.loops then
+    //                createAnimation animation.atlas 0 0.0 animation.frameDuration animation.loops animation.position animation.stopped
+    //            else
+    //                createAnimation animation.atlas animation.currentFrame animation.frameTime animation.frameDuration animation.loops animation.position true
+    //        else
+    //            createAnimation animation.atlas (animation.currentFrame + 1) 0.0 animation.frameDuration animation.loops animation.position animation.stopped
+    //    else 
+    //        createAnimation animation.atlas animation.currentFrame newFrameTime animation.frameDuration animation.loops animation.position animation.stopped

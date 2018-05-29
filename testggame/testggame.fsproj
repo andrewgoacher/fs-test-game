@@ -53,11 +53,12 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Settings.fs" />
-    <Compile Include="AnimatedSprite.fs" />
+    <Compile Include="Math.fs" />
+    <Compile Include="Texture.fs" />
+    <Compile Include="Animation.fs" />
     <Compile Include="TestState.fs" />
     <Compile Include="Game.fs" />
     <Compile Include="Program.fs" />
-    <None Include="Script.fsx" />
     <Content Include="packages.config" />
     <None Include="Content\Content.mgcb" />
     <None Include="Content\bg1.xnb">
