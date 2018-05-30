@@ -22,13 +22,13 @@ let createAnimation name frames loops =
     {name=name;frames=frames;loops=loops}
 
 let createAnimationFromAtlas name atlas indices duration loops =
-    let frames = 
+    let frames =
         indices
         |> List.map (fun index ->
             let sprite =Texture.createAtlasSprite atlas index atlas.items.[index].source
             createFrame sprite duration
         )
-    createAnimation name frames loops 
+    createAnimation name frames loops
 
 let addAnimation (animations:Animations) (animation :Animation)=
     let currentAnimations = animations.animations
@@ -48,8 +48,8 @@ let position animationState =
 let currentAnimation animation =
     let animationCollection = animation.animations
     let name = animationCollection.currentAnimation
-    let selectedAnimation = 
-        animationCollection.animations 
+    let selectedAnimation =
+        animationCollection.animations
         |> List.tryPick (fun anim ->
            if anim.name.Equals(name) then
                Some anim
@@ -72,12 +72,12 @@ let draw (spritebatch:SpriteBatch) (currentState:AnimationState) =
         let currentAnimation = currentAnimation currentState
         let frame = frame currentState currentAnimation
         let source = Texture.source <| Texture.AtlasSprite frame.atlasItem
-        let w,h = 
+        let w,h =
             match source with
             | None -> failwith "Need a source rectagnle for an animated sprite"
             | Some r -> (r.Width,r.Height)
 
-        let bounds = Math.createRect (int position.X) (int position.Y) w h
+        let bounds = new Rectangle( (int position.X), (int position.Y), w, h)
 
         Texture.draw spritebatch (Texture.AtlasSprite frame.atlasItem) (Some bounds)
 

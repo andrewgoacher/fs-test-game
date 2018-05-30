@@ -6,7 +6,7 @@ open Microsoft.Xna.Framework.Content
 
 type State=
     | Empty
-    | TestState of TestState.TestState
+    | TestState of States.TestState
 
 let createTestState (bounds:Rectangle) (contentManager:ContentManager)=
     let windowWidth = bounds.Width
@@ -28,11 +28,11 @@ let createTestState (bounds:Rectangle) (contentManager:ContentManager)=
 
     let animationState = Animation.createAnimationState animations characterPos 0.0 true 0
 
-    TestState.createTestState backgroundTexture animationState config        
+    States.createTestState backgroundTexture animationState config        
 
 type Game() as this=
     inherit Microsoft.Xna.Framework.Game()
-    
+
     let _ = new GraphicsDeviceManager(this)
     let mutable state = State.Empty
     let mutable spritebatch: SpriteBatch = null
@@ -52,7 +52,7 @@ type Game() as this=
         match state with 
         | Empty -> ()
         | TestState ts -> 
-            TestState.draw spritebatch ts
+            States.drawTestState spritebatch ts
         ()
 
         spritebatch.End()
@@ -60,10 +60,8 @@ type Game() as this=
     override this.Update(gameTime:GameTime)=
         match state with 
         | Empty -> 
-            let newState = createTestState this.Window.ClientBounds this.Content
-            state <- State.TestState newState
+            state <- State.TestState <| createTestState this.Window.ClientBounds this.Content
         | TestState ts ->
-            let newState = (TestState.update gameTime ts)
-            state <- State.TestState newState
+            state <- State.TestState <| States.updateTestState gameTime ts
         base.Update(gameTime)
     

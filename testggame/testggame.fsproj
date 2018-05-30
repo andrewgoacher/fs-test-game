@@ -53,7 +53,6 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Settings.fs" />
-    <Compile Include="Math.fs" />
     <Compile Include="Texture.fs" />
     <Compile Include="Animation.fs" />
     <Compile Include="TestState.fs" />

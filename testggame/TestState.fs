@@ -1,9 +1,8 @@
-﻿module TestState
+﻿module States
 
 open Microsoft.Xna.Framework.Graphics
 open Microsoft.Xna.Framework
 open Animation
-open Texture
 
 type TestState = {
     background:Texture.Sprite
@@ -15,12 +14,12 @@ let createTestState texture animation (config:Settings.Config)=
     let background = Texture.createSprite texture bounds |> Texture.Sprite.StaticSprite
     {background=background;animation=animation}
 
-let draw (spriteBatch:SpriteBatch) (testState:TestState) =
+let drawTestState (spriteBatch:SpriteBatch) (testState:TestState) =
     Texture.draw spriteBatch testState.background None
     
     Animation.draw spriteBatch testState.animation
 
-let update (gameTime:GameTime) (testState:TestState)=
+let updateTestState (gameTime:GameTime) (testState:TestState)=
     let newAnimationState = Animation.update gameTime testState.animation
     {background=testState.background;animation=newAnimationState}
 

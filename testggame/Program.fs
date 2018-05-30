@@ -4,7 +4,7 @@ module Program=
 
     [<EntryPoint>]
     [<STAThread>]
-    let main argv =
+    let main _ =
         use game = new Game.Game()
         game.Run()
         0
