@@ -77,32 +77,28 @@ let draw (spritebatch:SpriteBatch) (currentState:AnimationState) =
         Texture.draw spritebatch (Texture.AtlasSprite frame.atlasItem) (Some bounds)
 
 let update (gameTime:GameTime) (currentState:AnimationState) =
-    currentState
-    //match isActive currentState with
-    //| false -> ()
-    //| true ->
-    //    let elapsedTime = gameTime.ElapsedGameTime.TotalMilliseconds
-    //    let currentAnimation = currentAnimation currentState
-    //    let currentFrame = getFrame currentState
-    //    let newFrameTime = (frameTime animation) + elapsedTime
-    //    let duration = currentFrame.frameDuration
+    if not <| isActive currentState then
+        currentState
+    else
+        let elapsedTime = gameTime.ElapsedGameTime.TotalMilliseconds
+        let newFrameTime = currentState.frameTime + elapsedTime
+        let currentAnimation = currentAnimation currentState
+        let currentFrame = frame currentState currentAnimation
+        let duration = currentFrame.frameDuration
 
+        let incrementFrame animationState animation =
+            let currentFrame = animationState.currentFrame
+            let frameCount = List.length animation.frames
 
-    //if animation.stopped then
-    //    animation
-    //else 
+            if currentFrame < frameCount-1 then
+                (currentFrame + 1, true)
+            else
+                if animation.loops then
+                    (0,true)
+                else (currentFrame,false)
 
-    //    let currentFrame = currentFrame animation
-
-    //    if newFrameTime > duration then
-    //        let newFrameRef = currentFrame.atlasRef + 1
-    //        let totalFrameCount = frameCount animation
-    //        if newFrameRef >= totalFrameCount then
-    //            if animation.loops then
-    //                createAnimation animation.atlas 0 0.0 animation.frameDuration animation.loops animation.position animation.stopped
-    //            else
-    //                createAnimation animation.atlas animation.currentFrame animation.frameTime animation.frameDuration animation.loops animation.position true
-    //        else
-    //            createAnimation animation.atlas (animation.currentFrame + 1) 0.0 animation.frameDuration animation.loops animation.position animation.stopped
-    //    else 
-    //        createAnimation animation.atlas animation.currentFrame newFrameTime animation.frameDuration animation.loops animation.position animation.stopped
+        if newFrameTime >= duration then
+            let frameRef,isactive = incrementFrame currentState currentAnimation
+            createAnimationState currentState.animations currentState.position 0.0 isactive frameRef
+        else
+            createAnimationState currentState.animations currentState.position newFrameTime currentState.active currentState.currentFrame

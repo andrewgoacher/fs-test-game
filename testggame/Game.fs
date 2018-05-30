@@ -23,7 +23,7 @@ let createTestState (bounds:Rectangle) (contentManager:ContentManager)=
     let charX = 75
     let characterPos = new Vector2( (float32 charX), (float32 charY))
 
-    let runRightAnimation = Animation.createAnimationFromAtlas "run-right" atlas [0..7] 150.0 true
+    let runRightAnimation = Animation.createAnimationFromAtlas "run-right" atlas [0..7] 100.0 true
     let animations = (Animation.addAnimation {animations=[];currentAnimation=""} runRightAnimation)
 
     let animationState = Animation.createAnimationState animations characterPos 0.0 true 0

@@ -3,6 +3,7 @@
 open Microsoft.Xna.Framework.Graphics
 open Microsoft.Xna.Framework
 open Animation
+open Texture
 
 type TestState = {
     background:Texture.Sprite
@@ -21,10 +22,7 @@ let draw (spriteBatch:SpriteBatch) (testState:TestState) =
 
 let update (gameTime:GameTime) (testState:TestState)=
     let newAnimationState = Animation.update gameTime testState.animation
-    //let bounds = testState.bounds
-    //let config: Settings.Config  = {width=bounds.Width; height = bounds.Height}
-    //createTestState testState.texture newAnimationState config
-    testState
+    {background=testState.background;animation=newAnimationState}
 
 
 
