@@ -72,7 +72,8 @@ let draw (spritebatch:SpriteBatch) (currentState:AnimationState) =
         let currentAnimation = currentAnimation currentState
         let frame = frame currentState currentAnimation
         let source = Texture.source <| Texture.AtlasSprite frame.atlasItem
-        let w,h = match source with
+        let w,h = 
+            match source with
             | None -> failwith "Need a source rectagnle for an animated sprite"
             | Some r -> (r.Width,r.Height)
 
