@@ -19,7 +19,7 @@ let createTestState (bounds:Rectangle) (contentManager:ContentManager)=
     let atlasSize = (108,140)
     let atlas = Texture.createAtlas animationTexture atlasSize
 
-    let charY = windowHeight - 108
+    let charY = windowHeight - 140
     let charX = 75
     let characterPos = new Vector2( (float32 charX), (float32 charY))
 

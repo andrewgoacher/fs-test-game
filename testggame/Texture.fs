@@ -60,10 +60,10 @@ let bounds sprite =
 
 let source sprite =
     match sprite with 
-    | StaticSprite s -> s.bounds
+    | StaticSprite s -> None
     | AtlasSprite a -> 
         let items = a.textureAtlas.items
-        items.[a.frame].source
+        Some items.[a.frame].source
 
 let draw (spritebatch:SpriteBatch) sprite rect =
     let texture = texture sprite
@@ -72,7 +72,10 @@ let draw (spritebatch:SpriteBatch) sprite rect =
         | None -> (bounds sprite)
         | Some b -> b
 
-    let source = System.Nullable <| source sprite
+    let source = 
+        match source sprite with
+        | None -> System.Nullable<Rectangle>()
+        | Some r -> System.Nullable r
 
     spritebatch.Draw(
         texture,

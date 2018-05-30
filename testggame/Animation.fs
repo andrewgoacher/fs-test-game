@@ -72,7 +72,11 @@ let draw (spritebatch:SpriteBatch) (currentState:AnimationState) =
         let currentAnimation = currentAnimation currentState
         let frame = frame currentState currentAnimation
         let source = Texture.source <| Texture.AtlasSprite frame.atlasItem
-        let bounds = Math.createRect (int position.X) (int position.Y) source.Width source.Height
+        let w,h = match source with
+            | None -> failwith "Need a source rectagnle for an animated sprite"
+            | Some r -> (r.Width,r.Height)
+
+        let bounds = Math.createRect (int position.X) (int position.Y) w h
 
         Texture.draw spritebatch (Texture.AtlasSprite frame.atlasItem) (Some bounds)
 
